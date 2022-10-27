@@ -29,9 +29,16 @@ let itemsLayer;
 
 let scale;
 
+let maxHealth = 3;
+let curHealth = maxHealth;
+let alive = 1;
+
+
+
 let map;
 let music;
 let music_damage;
+let sound_bonk;
 let text;
 let hammer;
 let items;
@@ -40,6 +47,7 @@ let gameOver = false;
 let left,right,up,down;
 
 let enemies = [];
+let enemiesTimer = [];
 
 let isCollision;
 
@@ -63,6 +71,13 @@ function preload ()
     //AUDIO
     this.load.audio('bgMusic','assets/song.mp3');
     this.load.audio('damage','assets/kill.mp3');
+    this.load.audio('bonk','assets/bonk.mp3');
+    this.load.audio('healthMinus','assets/aughMinus.mp3');
+    this.load.audio('healthDeath','assets/aughDeath.mp3');
+}
+
+function lostText(){
+
 }
 
 function resize(width, height){
@@ -77,8 +92,10 @@ function create ()
     //AUDIO
     music = this.sound.add('bgMusic');
     music_damage = this.sound.add('damage');
-
-    music.play();
+    sound_bonk = this.sound.add('bonk');
+    sound_healthMinus = this.sound.add('healthMinus');
+    sound_healthDeath = this.sound.add('healthDeath');
+    //music.play();
 
   
     map = this.make.tilemap({ key: 'json_map' });//json map 
@@ -99,7 +116,7 @@ function create ()
     //F:set collision range 
     backgroundLayer.setCollisionBetween(1, 25);    
        
-    /*
+    
     text = this.add.text(game.canvas.width/2, 16, '', {
         fontSize: '3em',
         fontFamily: 'fantasy',
@@ -111,18 +128,18 @@ function create ()
     text.setOrigin(0.5);
     text.setScrollFactor(0);    
     updateText();
-    */
+    
     
     this.anims.create({
-        key: 'run',
+        key: 'birth',
         frames: this.anims.generateFrameNumbers('robot', { start: 0, end: 16 }),
-        frameRate: 20,
+        frameRate: 5,
         repeat: 0
     });
     this.anims.create({
-        key: 'wait',
+        key: 'alive',
         frames: this.anims.generateFrameNumbers('robot', { start: 8, end: 12 }),
-        frameRate: 20,
+        frameRate: 80,
         repeat: -1
     });
     this.anims.create({
@@ -143,53 +160,115 @@ function create ()
     */
 }
 
+function updateText ()
+{
+	text.setPosition(game.canvas.width/2 / map.scene.cameras.main.zoom + 50, text.height);
+    text.setText(
+        'Mam rád ' + curHealth + ' Pinďoury'
+    );
+    text.setColor('white');
+}
+
 function pointer_move(pointer) {
     hammer.x = pointer.x;
     hammer.y = pointer.y;
 }
 
+//MATEMATIKA
+function letterY(start, end){
+    
+
+}
+
+
 function update ()
 {     
     time++;
-    if(time % 30 == 0 && Math.random() > 0.5 && enemies.length < 10) {
-        let x = Math.floor(Math.random() * window.innerWidth);
-        let y = Math.floor(Math.random() * window.innerHeight);
-        console.log(`spawn: ${x} ${y}`);
-        let enemy = this.physics.add.sprite(x, y, 'robot');
-        enemy.setBounce(0.1);
-        enemies.push(enemy);
-        enemy.anims.play('run', true); 
-        enemy.dead = false;
+    if(alive){
+        if(time % 30 == 0 /*&& Math.random() > 0.5*/ && enemies.length < 10) {
+            let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
+            let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
+            console.log(`spawn: ${x} ${y}`);
+            let enemy = this.physics.add.sprite(x, y, 'robot');
+            enemy.setBounce(0.1);
+            enemies.push(enemy);
+            enemiesTimer.push(setTimeout(()=>{reduceHealth(enemy)}, 3000));
+            enemy.anims.play('birth', true); 
+            enemy.dead = false;
 
-        //this.physics.add.collider(enemy, collisionLayer);
-        this.physics.add.overlap(enemy, backgroundLayer);
-        this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
+            //this.physics.add.collider(enemy, collisionLayer);
+            this.physics.add.overlap(enemy, backgroundLayer);
+            this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
+        }
+    }
+        else
+        {
+            let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
+            let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
+            let enemy = this.physics.add.sprite(x, y, 'robot');
+            enemy.anims.play('alive', true);
+            //if(time % 100 == 0)
+                //sound_healthDeath.play();
+            //DOPSAT YOU LOST
+        }
+    updateText();
+    if(curHealth <= 0){
+        console.log('big homo');
+        text.setText('you dieded axaxa');
     }
 }
 
-function updateText ()
-{
-	text.setPosition(game.canvas.width/2 / map.scene.cameras.main.zoom + 50, text.height);
-    //text.setText(
-    //    'Score: ' + coinsCollected + '    Best score: ' + bestCollected
-    //);
-    text.setColor('white');
-}
-
-function collisionHandlerEnemy(enemy) {
+function reduceHealth(enemy){
     if(enemy.dead)
         return;
-    enemy.dead = true;
+    else
+        {
+        removeEnemy(enemy, 0);
+        }   
+    curHealth--;
+    if(curHealth == 0){
+        sound_healthDeath.play();
+        alive = 0;
+    }
+    else if(alive)
+        sound_healthMinus.play();
+
+
+
+
+}
+//*removeparam, 1 - died, 0 - alive
+
+function removeEnemy(enemy, removeParam){
+
     let index = enemies.indexOf(enemy);
     console.log(index);
     enemies.splice(index, 1);
-    
-    enemy.anims.stop('run', true);
-    enemy.anims.play('die', true); 
-    setTimeout(()=>{
-        enemy.destroy(true);
-        music_damage.play();
-    }, 1000);
+    enemiesTimer.splice(index, 1);
+    if(removeParam){
+        //enemy.anims.stop('birth', true);
+        enemy.anims.play('die', true); 
+        setTimeout(()=>{
+            enemy.destroy(true);
+        }, 800);
+    }
+    else{
+        enemy.anims.play('alive', true);
+        setTimeout(()=>{
+            enemy.destroy(true);
+        },1800);
+        }
+}
+
+
+function collisionHandlerEnemy(enemy) {
+
+    if(enemy.dead)
+        return;
+    enemy.dead = true;
+    sound_bonk.play();
+    removeEnemy(enemy, 1);
+
 
     //updateText();
 }
