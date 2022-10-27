@@ -1,4 +1,4 @@
-let config = {
+const config = {
     type: Phaser.AUTO,
     width: Math.min(window.innerWidth, window.outerWidth),
     height: Math.min(window.innerHeight, window.outerHeight),
