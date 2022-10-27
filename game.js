@@ -2,7 +2,7 @@ const config = {
     type: Phaser.AUTO,
     parent: 'phaser-app',
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale,
     },
     physics: {
         default: 'arcade',
@@ -55,6 +55,8 @@ function preload ()
 {
     this.load.spritesheet('robot', 'assets/lego.png',
         { frameWidth: 37, frameHeight: 48 } ); 
+    this.load.spritesheet('krtek', 'assets/Krtek_animace_rescale.png',
+        { frameWidth: 107, frameHeight: 118} );
 
     this.load.spritesheet('items', 'assets/items.png', { frameWidth: 32, frameHeight: 32 } ); 
     this.load.spritesheet('hammer', 'assets/hammer.png', { frameWidth: 32, frameHeight: 32 } ); 
@@ -148,6 +150,25 @@ function create ()
         frameRate: 20,
         repeat: 0
     });
+    this.anims.create({
+        key: 'up',
+        frames: this.anims.generateFrameNumbers('krtek', {start: 0, end: 12 }),
+        frameRate: 10,
+        repeat:0
+    });
+    this.anims.create({
+        key: 'down',
+        frames: this.anims.generateFrameNumbers('krtek', {start: 12, end: 0, step:-1 }),
+        frameRate: 10,
+        repeat:0
+    });
+    
+    this.anims.create({
+        key: 'kill',
+        frames: this.anims.generateFrameNumbers('krtek', {start: 13, end: 26 }),
+        frameRate: 10,
+        repeat:0
+    });
     
     // cursors = this.input.keyboard.createCursorKeys();  
 
@@ -164,7 +185,7 @@ function updateText ()
 {
 	text.setPosition(game.canvas.width/2 / map.scene.cameras.main.zoom + 50, text.height);
     text.setText(
-        'Mam rád ' + curHealth + ' Pinďoury'
+        'Počet životů ' + curHealth
     );
     text.setColor('white');
 }
@@ -185,15 +206,15 @@ function update ()
 {     
     time++;
     if(alive){
-        if(time % 30 == 0 /*&& Math.random() > 0.5*/ && enemies.length < 10) {
+        if(time % 80 == 0 && Math.random() > 0.5 && enemies.length < 10) {
             let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
             let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
             console.log(`spawn: ${x} ${y}`);
-            let enemy = this.physics.add.sprite(x, y, 'robot');
+            let enemy = this.physics.add.sprite(x, y, 'krtek');
             enemy.setBounce(0.1);
             enemies.push(enemy);
             enemiesTimer.push(setTimeout(()=>{reduceHealth(enemy)}, 3000));
-            enemy.anims.play('birth', true); 
+            enemy.anims.play('up', true); 
             enemy.dead = false;
 
             //this.physics.add.collider(enemy, collisionLayer);
@@ -201,12 +222,13 @@ function update ()
             this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
         }
     }
-        else
+        else if(time % 5 == 0)
         {
+            
             let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
             let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
-            let enemy = this.physics.add.sprite(x, y, 'robot');
-            enemy.anims.play('alive', true);
+            let enemy = this.physics.add.sprite(x, y, 'krtek');
+            enemy.anims.play('up', true);
             //if(time % 100 == 0)
                 //sound_healthDeath.play();
             //DOPSAT YOU LOST
@@ -246,17 +268,16 @@ function removeEnemy(enemy, removeParam){
     enemies.splice(index, 1);
     enemiesTimer.splice(index, 1);
     if(removeParam){
-        //enemy.anims.stop('birth', true);
-        enemy.anims.play('die', true); 
+        enemy.anims.play('kill', true); 
         setTimeout(()=>{
             enemy.destroy(true);
-        }, 800);
+        }, 1300);
     }
     else{
-        enemy.anims.play('alive', true);
+        enemy.anims.play('down', true);
         setTimeout(()=>{
             enemy.destroy(true);
-        },1800);
+        },1300);
         }
 }
 
