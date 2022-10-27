@@ -1,7 +1,9 @@
 const config = {
     type: Phaser.AUTO,
-    width: Math.min(window.innerWidth, window.outerWidth),
-    height: Math.min(window.innerHeight, window.outerHeight),
+    parent: 'phaser-app',
+    scale: {
+        mode: Phaser.Scale.FIT,
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -24,6 +26,8 @@ let enemyMove = 0;
 let backgroundLayer;//mapa
 let collisionLayer;
 let itemsLayer;
+
+let scale;
 
 let map;
 let music;
@@ -61,12 +65,15 @@ function preload ()
     this.load.audio('damage','assets/kill.mp3');
 }
 
-function resize (width, height)
-{
-}	
-	
+function resize(width, height){
+    scale.displaySize.setAspectRatio(width/height);
+    scale.refresh();
+}
+
 function create ()
 {
+    scale = this.scale;
+    resize(Math.min(window.innerWidth, window.outerWidth), Math.min(window.innerHeight, window.outerHeight));
     //AUDIO
     music = this.sound.add('bgMusic');
     music_damage = this.sound.add('damage');
@@ -92,6 +99,7 @@ function create ()
     //F:set collision range 
     backgroundLayer.setCollisionBetween(1, 25);    
        
+    /*
     text = this.add.text(game.canvas.width/2, 16, '', {
         fontSize: '3em',
         fontFamily: 'fantasy',
@@ -103,6 +111,7 @@ function create ()
     text.setOrigin(0.5);
     text.setScrollFactor(0);    
     updateText();
+    */
     
     this.anims.create({
         key: 'run',
@@ -114,10 +123,12 @@ function create ()
     // cursors = this.input.keyboard.createCursorKeys();  
 
 	this.input.on('pointermove', pointer_move);
-	window.addEventListener('resize', function (event) {
-		resize(Math.min(window.innerWidth, window.outerWidth), Math.min(window.innerHeight, window.outerHeight));
+	/*
+    window.addEventListener('resize', function (event) {
+		this.scale.displaySize.setAspectRatio( width/height );
+        this.scale.refresh();
 	}, false);
-	resize(Math.min(window.innerWidth, window.outerWidth), Math.min(window.innerHeight, window.outerHeight));
+    */
 }
 
 function pointer_move(pointer) {
@@ -157,5 +168,5 @@ function collisionHandlerEnemy(enemy) {
     enemies.splice(index, 1);
     music_damage.play();
 
-    updateText();
+    //updateText();
 }
