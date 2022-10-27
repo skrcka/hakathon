@@ -29,13 +29,13 @@ let map;
 let music;
 let music_damage;
 let text;
-let enemy;
 let hammer;
 let items;
 let bombs;
 let gameOver = false;
 let left,right,up,down;
-let enemyX = enemyY = 0;
+
+let enemies = [];
 
 let isCollision;
 
@@ -49,6 +49,12 @@ function preload ()
 
     this.load.image('tiles', 'assets/map_tiles.png');
     this.load.tilemapTiledJSON('json_map', 'assets/json_map.json');
+    
+    this.load.image('tiles', 'assets/64x64.png');
+    //this.load.image('tiles', 'assets/MapTiltes.png');
+    //this.load.tilemapTiledJSON('json_map', 'assets/DanMap.json');
+
+    
 
     //AUDIO
     this.load.audio('bgMusic','assets/song.mp3');
@@ -57,7 +63,6 @@ function preload ()
 
 function resize (width, height)
 {
-
 }	
 	
 function create ()
@@ -83,14 +88,6 @@ function create ()
     
     hammer = this.physics.add.sprite(100, 450, 'hammer');
     this.physics.add.overlap(hammer, backgroundLayer);
-
-    enemy = this.physics.add.sprite(200, 200, 'robot');
-    enemy.setBounce(0.1);
-
-    this.physics.add.collider(enemy, collisionLayer);
-    this.physics.add.overlap(enemy, backgroundLayer);
-
-    this.physics.add.overlap(hammer, enemy, collisionHandlerEnemy);
     
     //F:set collision range 
     backgroundLayer.setCollisionBetween(1, 25);    
@@ -130,32 +127,18 @@ function pointer_move(pointer) {
 
 function update ()
 {     
-    enemyMove++;
-    // náhodný pohyb po dvou sekundách
-    if(enemyMove % 100 == 0){
-        let randX = Math.floor(Math.random() * 60) + 40;
-        let randY = Math.floor(Math.random() * 60) + 40;
-        randX *= Math.floor(Math.random()*2) == 1 ? 1 : -1; 
-        randY *= Math.floor(Math.random()*2) == 1 ? 1 : -1; 
-        //console.log(randX, randY)
-        if(randX < 0){
-            enemy.angle = 90;
-        }
-        else if(randX > 0){
-            enemy.angle = 270;
-        }
-        if(randY > 0){
-            enemy.angle = 0;
-        }
-        else if(randY < 0){
-            enemy.angle = 180;
-        }
-        enemyX = randX;
-        enemyY = randY;
+    time++;
+    if(time % 100 == 0){
+        let x = Math.floor(Math.random() * window.innerWidth);
+        let y = Math.floor(Math.random() * window.innerHeight);
+        console.log(`spawn: ${x} ${y}`);
+        let enemy = this.physics.add.sprite(x, y, 'robot');
+        enemy.setBounce(0.1);
+        enemies.push(enemy);
+        this.physics.add.collider(enemy, collisionLayer);
+        this.physics.add.overlap(enemy, backgroundLayer);
+        this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
     }
-    enemy.body.setVelocityX(enemyX);
-    enemy.body.setVelocityY(enemyY);
-    enemy.anims.play('run', true); 
 }
 
 function updateText ()
@@ -167,8 +150,11 @@ function updateText ()
     text.setColor('white');
 }
 
-function collisionHandlerEnemy () {
-    console.log("collision with enemy");
+function collisionHandlerEnemy(enemy) {
+    let index = enemies.indexOf(enemy);
+    console.log(index);
+    enemies[index].destroy(true);
+    enemies.splice(index, 1);
     music_damage.play();
 
     updateText();
