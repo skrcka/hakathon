@@ -55,8 +55,10 @@ function preload ()
 {
     this.load.spritesheet('robot', 'assets/lego.png',
         { frameWidth: 37, frameHeight: 48 } ); 
-    this.load.spritesheet('krtek', 'assets/Krtek_animace_rescale.png',
-        { frameWidth: 107, frameHeight: 118} );
+    //this.load.spritesheet('krtek', 'assets/Krtek_animace_rescale.png',
+    //    { frameWidth: 107, frameHeight: 118} );
+    this.load.spritesheet('krtek', 'assets/Krtek_rescale.png',
+        { frameWidth: 64, frameHeight: 70} );
 
     this.load.spritesheet('items', 'assets/items.png', { frameWidth: 32, frameHeight: 32 } ); 
     this.load.spritesheet('hammer', 'assets/hammer.png', { frameWidth: 32, frameHeight: 32 } ); 
