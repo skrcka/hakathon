@@ -50,7 +50,7 @@ function preload ()
     this.load.image('tiles', 'assets/map_tiles.png');
     this.load.tilemapTiledJSON('json_map', 'assets/json_map.json');
     
-    this.load.image('tiles', 'assets/64x64.png');
+    //this.load.image('tiles', 'assets/img64.png');
     //this.load.image('tiles', 'assets/MapTiltes.png');
     //this.load.tilemapTiledJSON('json_map', 'assets/DanMap.json');
 
@@ -73,7 +73,7 @@ function create ()
 
     music.play();
 
-    isCollision = 0;
+  
     map = this.make.tilemap({ key: 'json_map' });//json map 
     //F: 'map_tiles' - name of the tilesets in json_map.json
     //F: 'tiles' - name of the image in load.images()
@@ -135,7 +135,7 @@ function update ()
         let enemy = this.physics.add.sprite(x, y, 'robot');
         enemy.setBounce(0.1);
         enemies.push(enemy);
-        this.physics.add.collider(enemy, collisionLayer);
+        //this.physics.add.collider(enemy, collisionLayer);
         this.physics.add.overlap(enemy, backgroundLayer);
         this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
     }
