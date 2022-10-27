@@ -117,8 +117,20 @@ function create ()
         key: 'run',
         frames: this.anims.generateFrameNumbers('robot', { start: 0, end: 16 }),
         frameRate: 20,
+        repeat: 0
+    });
+    this.anims.create({
+        key: 'wait',
+        frames: this.anims.generateFrameNumbers('robot', { start: 8, end: 12 }),
+        frameRate: 20,
         repeat: -1
-    }); 
+    });
+    this.anims.create({
+        key: 'die',
+        frames: this.anims.generateFrameNumbers('robot', { start: 16, end: 0, step:-1 }),
+        frameRate: 20,
+        repeat: 0
+    });
     
     // cursors = this.input.keyboard.createCursorKeys();  
 
@@ -146,6 +158,9 @@ function update ()
         let enemy = this.physics.add.sprite(x, y, 'robot');
         enemy.setBounce(0.1);
         enemies.push(enemy);
+        enemy.anims.play('run', true); 
+        enemy.dead = false;
+
         //this.physics.add.collider(enemy, collisionLayer);
         this.physics.add.overlap(enemy, backgroundLayer);
         this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
@@ -162,11 +177,19 @@ function updateText ()
 }
 
 function collisionHandlerEnemy(enemy) {
+    if(enemy.dead)
+        return;
+    enemy.dead = true;
     let index = enemies.indexOf(enemy);
     console.log(index);
-    enemies[index].destroy(true);
     enemies.splice(index, 1);
-    music_damage.play();
+    
+    enemy.anims.stop('run', true);
+    enemy.anims.play('die', true); 
+    setTimeout(()=>{
+        enemy.destroy(true);
+        music_damage.play();
+    }, 1000);
 
     //updateText();
 }
