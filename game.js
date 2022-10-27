@@ -21,7 +21,7 @@ var game = new Phaser.Game(config);
 var time = 0;
 var enemyMove = 0;
 
-var backgroundLayer;
+var backgroundLayer;//mapa
 var collisionLayer;
 var itemsLayer;
 
@@ -30,8 +30,8 @@ var music;
 var coinsCollected = 0;
 var bestCollected = 0;
 var text;
-var player;
 var enemy;
+var hammer;
 var items;
 var bombs;
 var gameOver = false;
@@ -47,6 +47,7 @@ function preload ()
         { frameWidth: 37, frameHeight: 48 } ); 
 
     this.load.spritesheet('items', 'assets/items.png', { frameWidth: 32, frameHeight: 32 } ); 
+    this.load.spritesheet('hammer', 'assets/hammer.png', { frameWidth: 32, frameHeight: 32 } ); 
 
     this.load.image('tiles', 'assets/map_tiles.png');
     this.load.tilemapTiledJSON('json_map', 'assets/json_map.json');
@@ -61,7 +62,8 @@ function preload ()
 function resize (width, height)
 {
 
-}		
+}	
+	
 function create ()
 {
     //AUDIO
@@ -72,7 +74,7 @@ function create ()
     music.play();
 
     isCollision = 0;
-    map = this.make.tilemap({ key: 'json_map' });
+    map = this.make.tilemap({ key: 'json_map' });//json map 
     //F: 'map_tiles' - name of the tilesets in json_map.json
     //F: 'tiles' - name of the image in load.images()
     var tiles = map.addTilesetImage('map_tiles','tiles');
@@ -84,15 +86,11 @@ function create ()
     items = this.physics.add.sprite(100, 150, 'items', 0);
     items.setBounce(0.1);
     
-    player = this.physics.add.sprite(100, 450, 'robot');
-    player.setBounce(0.1);
+    hammer = this.physics.add.sprite(100, 450, 'hammer');
+    this.physics.add.overlap(hammer, backgroundLayer);
 
     enemy = this.physics.add.sprite(200, 200, 'robot');
     enemy.setBounce(0.1);
-    
-    
-    this.physics.add.collider(player, collisionLayer);
-    this.physics.add.overlap(player, backgroundLayer);
 
     this.physics.add.collider(enemy, collisionLayer);
     this.physics.add.overlap(enemy, backgroundLayer);
@@ -100,12 +98,6 @@ function create ()
     //F:set collision range 
     backgroundLayer.setCollisionBetween(1, 25);    
        
-    //F:Checks to see if the player overlaps with any of the items, 
-    //f:if he does call the collisionHandler function
-    this.physics.add.overlap(player, items, collisionHandler);
-    this.physics.add.overlap(player, enemy, collisionHandlerEnemy);
-    
-    //this.cameras.main.startFollow(player);    
     var best = localStorage.getItem('bestScore');
     //console.log(best)
     if (best == null){
@@ -135,54 +127,19 @@ function create ()
         repeat: -1
     }); 
     
-    cursors = this.input.keyboard.createCursorKeys();  
+    // cursors = this.input.keyboard.createCursorKeys();  
 
-	this.input.on('pointerdown', function (pointer) { 
-		move_ctl = true; 
-		pointer_move(pointer); 
-	});
-	this.input.on('pointerup', function (pointer) { move_ctl = false; reset_move()});
 	this.input.on('pointermove', pointer_move);
 	window.addEventListener('resize', function (event) {
 		resize(Math.min(window.innerWidth, window.outerWidth), Math.min(window.innerHeight, window.outerHeight));
-	}, false);		
+	}, false);
 	resize(Math.min(window.innerWidth, window.outerWidth), Math.min(window.innerHeight, window.outerHeight));
 }
 
 function pointer_move(pointer) {
-		var dx=dy=0;
-		//var min_pointer=20; // virtual joystick
-		var min_pointer = (player.body.width + player.body.height) / 4 ; // following pointer by player
-		if (move_ctl) {
-			reset_move();
-            /*			
-            // virtual joystick
- 			dx =  (pointer.x - pointer.downX); 
-			dy = (pointer.y - pointer.downY);*/
-			
-			// following pointer by player
-			dx = (pointer.x / map.scene.cameras.main.zoom - player.x);
-			dy = (pointer.y / map.scene.cameras.main.zoom - player.y);
-		    //console.log( 'Xp:'  + player.x + ', Xc:'  + pointer.x + ', Yp:' + player.y + ', Yc:' + pointer.y );
-			
-			if (Math.abs(dx) > min_pointer) {
-				left = (dx < 0); 
-				right = !left; 
-			} else { 
-				left = right = false;
-			}
-			if (Math.abs(dy) > min_pointer) {
-				up = (dy < 0); 
-				down = !up; 
-			} else { 
-				up = down = false;
-			}
-		}
-		//console.log( 'L:'  + left + ', R:'  + right + ', U:' + up + ', D:' + down, ', dx: ' + dx + ',dy: ' + dy );
-}
-
-function reset_move() {
-  up = down = left = right = false;
+    console.log("pointer move")
+    hammer.x = pointer.x;
+    hammer.y = pointer.y;
 }
 
 function update ()
@@ -201,41 +158,6 @@ function update ()
 	// Needed for player following the pointer:
 	if (move_ctl) { pointer_move(game.input.activePointer); }
 	
-    // Horizontal movement
-    if (cursors.left.isDown || left)
-    {
-        player.body.setVelocityX(-150);
-        player.angle = 90;
-        player.anims.play('run', true); 
-    }
-    else if (cursors.right.isDown || right)
-    {
-        player.body.setVelocityX(150);
-        player.angle = 270;
-        player.anims.play('run', true); 
-    }
-    else
-    {
-        player.body.setVelocityX(0);
-    }
-
-    // Vertical movement
-    if (cursors.up.isDown || up)
-    {
-        player.body.setVelocityY(-150);
-        player.angle = 180;
-        player.anims.play('run', true); 
-    }
-    else if (cursors.down.isDown || down)
-    {
-        player.body.setVelocityY(150);
-        player.anims.play('run', true); 
-        player.angle = 0;
-    }
-    else
-    {
-        player.body.setVelocityY(0);
-    }
     // náhodný pohyb po dvou sekundách
     if(enemyMove % 100 == 0){
         randX = Math.floor(Math.random() * 60) + 40;
@@ -274,29 +196,6 @@ function updateText ()
     text.setColor('white');
 }
 
-// If the player collides with items
-function collisionHandler (player, item) {   
-    music_collect.play();
-    coinsCollected += 1;
-
-    if (coinsCollected > bestCollected) { bestCollected = coinsCollected; localStorage.setItem('bestScore', coinsCollected) }
-    updateText();
-
-    time = 0;
-    item.disableBody(true, true);
-      
-    if (item.body.enable == false)
-    {
-        var h = map.heightInPixels-40;
-        var w = map.widthInPixels-40;
-        var itemX = Phaser.Math.Between(40, w);
-        var itemY = Phaser.Math.Between(40, h);
-        var itemID = Phaser.Math.Between(0, 118);
-        item.setFrame(itemID);
-        item.enableBody(true, itemX, itemY, true, true);
-    }
-       
-}
 function collisionHandlerEnemy () {   
     console.log("collision with enemy");
     music_damage.play();
