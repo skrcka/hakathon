@@ -29,7 +29,7 @@ let itemsLayer;
 
 let scale;
 
-let maxHealth = 3;
+let maxHealth = 4;
 let curHealth = maxHealth;
 let alive = 1;
 
@@ -122,7 +122,7 @@ function create ()
        
     
     text = this.add.text(game.canvas.width/2, 16, '', {
-        fontSize: '3em',
+        fontSize: 55,
         fontFamily: 'fantasy',
         align: 'center',
         boundsAlignH: "center", 
@@ -208,9 +208,9 @@ function update ()
 {     
     time++;
     if(alive){
-        if(time % 80 == 0 && Math.random() > 0.5 && enemies.length < 10) {
-            let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
-            let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
+        if(time % 30 == 0 && Math.random() > 0.5 && enemies.length < 10) {
+            let x = Math.floor(Math.random() *  1100)/*window.innerWidth)*/;
+            let y = Math.floor(Math.random() * 650 )/*window.innerHeight)*/;
             console.log(`spawn: ${x} ${y}`);
             let enemy = this.physics.add.sprite(x, y, 'krtek');
             enemy.setBounce(0.1);
@@ -224,11 +224,11 @@ function update ()
             this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
         }
     }
-        else if(time % 5 == 0)
+        else if(time % 4 == 0)
         {
             
-            let x = Math.floor(Math.random() *  800)/*window.innerWidth)*/;
-            let y = Math.floor(Math.random() * 500)/*window.innerHeight)*/;
+            let x = Math.floor(Math.random() *  1100)/*window.innerWidth)*/;
+            let y = Math.floor(Math.random() * 650)/*window.innerHeight)*/;
             let enemy = this.physics.add.sprite(x, y, 'krtek');
             enemy.anims.play('up', true);
             //if(time % 100 == 0)
