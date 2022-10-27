@@ -128,7 +128,7 @@ function pointer_move(pointer) {
 function update ()
 {     
     time++;
-    if(time % 30 == 0 && Math.random() > 0.5) {
+    if(time % 30 == 0 && Math.random() > 0.5 && enemies.length < 10) {
         let x = Math.floor(Math.random() * window.innerWidth);
         let y = Math.floor(Math.random() * window.innerHeight);
         console.log(`spawn: ${x} ${y}`);
