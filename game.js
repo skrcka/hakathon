@@ -209,8 +209,8 @@ function update ()
     time++;
     if(alive){
         if(time % 30 == 0 && Math.random() > 0.5 && enemies.length < 10) {
-            let x = Math.floor(Math.random() *  1100)/*window.innerWidth)*/;
-            let y = Math.floor(Math.random() * 650 )/*window.innerHeight)*/;
+            let x = Math.round((Math.floor(Math.random()*1005))/31)*31;
+            let y = Math.round((Math.floor(Math.random()*640))/31)*24+220;
             console.log(`spawn: ${x} ${y}`);
             let enemy = this.physics.add.sprite(x, y, 'krtek');
             enemy.setBounce(0.1);
@@ -227,8 +227,8 @@ function update ()
         else if(time % 4 == 0)
         {
             
-            let x = Math.floor(Math.random() *  1100)/*window.innerWidth)*/;
-            let y = Math.floor(Math.random() * 650)/*window.innerHeight)*/;
+            let x = Math.round((Math.floor(Math.random()*1005))/31)*31;
+            let y = Math.round((Math.floor(Math.random()*640))/31)*24+220;
             let enemy = this.physics.add.sprite(x, y, 'krtek');
             enemy.anims.play('up', true);
             //if(time % 100 == 0)
