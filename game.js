@@ -51,7 +51,7 @@ function preload ()
     this.load.spritesheet('items', 'assets/items.png', { frameWidth: 32, frameHeight: 32 } ); 
     this.load.spritesheet('hammer', 'assets/hammer.png', { frameWidth: 32, frameHeight: 32 } ); 
 
-    this.load.image('tiles', 'assets/map_tiles.png');
+    this.load.image('tiles', 'assets/map_tilesew.png');
     this.load.tilemapTiledJSON('json_map', 'assets/json_map.json');
     
     //this.load.image('tiles', 'assets/img64.png');
@@ -84,7 +84,7 @@ function create ()
     map = this.make.tilemap({ key: 'json_map' });//json map 
     //F: 'map_tiles' - name of the tilesets in json_map.json
     //F: 'tiles' - name of the image in load.images()
-    let tiles = map.addTilesetImage('map_tiles','tiles');
+    let tiles = map.addTilesetImage('map_tilesew','tiles');
 
     backgroundLayer = map.createDynamicLayer('background', tiles, 0, 0);
     collisionLayer = map.createDynamicLayer('collision', tiles, 0, 0).setVisible(false);
@@ -146,7 +146,7 @@ function update ()
         let enemy = this.physics.add.sprite(x, y, 'robot');
         enemy.setBounce(0.1);
         enemies.push(enemy);
-        //this.physics.add.collider(enemy, collisionLayer);
+        this.physics.add.collider(enemy, collisionLayer);
         this.physics.add.overlap(enemy, backgroundLayer);
         this.physics.add.overlap(hammer, enemy, () => { collisionHandlerEnemy(enemy) });
     }
