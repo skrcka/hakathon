@@ -1,4 +1,4 @@
-var config = {
+let config = {
     type: Phaser.AUTO,
     width: Math.min(window.innerWidth, window.outerWidth),
     height: Math.min(window.innerHeight, window.outerHeight),
@@ -17,28 +17,27 @@ var config = {
     debug: true
 };
 
-var game = new Phaser.Game(config);
-var time = 0;
-var enemyMove = 0;
+let game = new Phaser.Game(config);
+let time = 0;
+let enemyMove = 0;
 
-var backgroundLayer;//mapa
-var collisionLayer;
-var itemsLayer;
+let backgroundLayer;//mapa
+let collisionLayer;
+let itemsLayer;
 
-var map;
-var music;
-var music_damage;
-var music_damage;
-var text;
-var enemy;
-var hammer;
-var items;
-var bombs;
-var gameOver = false;
-var left,right,up,down;
-var enemyX = enemyY = 0;
+let map;
+let music;
+let music_damage;
+let text;
+let enemy;
+let hammer;
+let items;
+let bombs;
+let gameOver = false;
+let left,right,up,down;
+let enemyX = enemyY = 0;
 
-var isCollision;
+let isCollision;
 
 function preload ()
 {
@@ -73,7 +72,7 @@ function create ()
     map = this.make.tilemap({ key: 'json_map' });//json map 
     //F: 'map_tiles' - name of the tilesets in json_map.json
     //F: 'tiles' - name of the image in load.images()
-    var tiles = map.addTilesetImage('map_tiles','tiles');
+    let tiles = map.addTilesetImage('map_tiles','tiles');
 
     backgroundLayer = map.createDynamicLayer('background', tiles, 0, 0);
     collisionLayer = map.createDynamicLayer('collision', tiles, 0, 0).setVisible(false);
